@@ -1,7 +1,5 @@
 package com.example.demo.aspects;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
