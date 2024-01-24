@@ -20,6 +20,11 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
+/**
+ * @author Pratiyush Prakash
+ * 
+ * Here we define our security configurations
+ */
 @Configuration
 @EnableWebSecurity
 @ComponentScan({"com.example.demo"})
