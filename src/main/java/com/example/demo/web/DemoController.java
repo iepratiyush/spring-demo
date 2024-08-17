@@ -5,10 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,19 +19,25 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import com.example.demo.annotations.LogRequestResponse;
 import com.example.demo.models.Employee;
+import com.example.demo.models.Student;
+import com.example.demo.repository.DemoDao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Pratiyush Prakash
  * 
- * All endpoints resides here
+ *         All endpoints resides here
  */
 @RestController
 @RequestMapping("/api/v1")
 public class DemoController {
 
+    @Autowired
+    DemoDao demoDao;
+
     /**
      * This is a sample secured API call
+     * 
      * @return String
      */
     @LogRequestResponse
@@ -39,6 +48,7 @@ public class DemoController {
 
     /**
      * This is a sample un-secured API call
+     * 
      * @return String
      */
     @LogRequestResponse
@@ -49,6 +59,7 @@ public class DemoController {
 
     /**
      * This is a sample GET call to return object
+     * 
      * @return Map of name and age
      */
     @LogRequestResponse
@@ -61,6 +72,7 @@ public class DemoController {
 
     /**
      * This is a sample GET call to test different response status
+     * 
      * @return ResponseEntity
      */
     @LogRequestResponse
@@ -78,26 +90,27 @@ public class DemoController {
 
     /**
      * This endpoint will return data as a stream
+     * 
      * @return ResponseEntity<StreamingResponseBody>
      */
     @GetMapping("/stream/employee/all")
-    public ResponseEntity<StreamingResponseBody> streamEmployees(
-    ) {
+    public ResponseEntity<StreamingResponseBody> streamEmployees() {
         List<Employee> employees = new ArrayList<>();
 
         // Emulate having 10k rows
         // For 10k you won't notice significant improvement
         // Increase this number and you will see how performance gets impacted
         for (int i = 1; i <= 10000; i++) {
-            Employee employee = Employee.builder().id(i).name("name " + i).departmentId((int)(Math.random() * 10000)).build();
+            Employee employee = Employee.builder().id(i).name("name " + i).departmentId((int) (Math.random() * 10000))
+                    .build();
             employees.add(employee);
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
 
         StreamingResponseBody responseBody = outputStream -> {
-            
-            for (Employee employee: employees) {
+
+            for (Employee employee : employees) {
                 String jsonChunk = objectMapper.writeValueAsString(employee);
                 outputStream.write(jsonChunk.getBytes());
                 // We have to add a token so that we can split it using this in client side
@@ -110,6 +123,7 @@ public class DemoController {
 
     /**
      * This endpoint will return data in one go
+     * 
      * @return List<Employee>
      */
     @GetMapping("/normal/employee/all")
@@ -120,12 +134,18 @@ public class DemoController {
         // For 10k you won't notice significant improvement
         // Increase this number and you will see how performance gets impacted
         for (int i = 0; i < 10000; i++) {
-            Employee employee = Employee.builder().id(i).name("name " + i).departmentId((int)(Math.random() * 10000)).build();
+            Employee employee = Employee.builder().id(i).name("name " + i).departmentId((int) (Math.random() * 10000))
+                    .build();
             employees.add(employee);
         }
 
         return employees;
     }
-    
-    
+
+    @Cacheable(cacheNames = "student", key = "{#id}", unless = "#result == null")
+    @GetMapping("/student/{id}")
+    public Student getStudent(@PathVariable("id") Integer id) {
+        return demoDao.getStudent(id);
+    }
+
 }

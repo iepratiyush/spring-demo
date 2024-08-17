@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.repository.DemoDao">
+    <resultMap id="student" type="com.example.demo.models.Student">
+        <result property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="age" column="age" />
+    </resultMap>
+
+    <select id="getStudent" resultMap="student">
+        SELECT 
+            id, 
+            name, 
+            age
+        FROM student
+        WHERE id = #{id}
+    </select>
+</mapper>
